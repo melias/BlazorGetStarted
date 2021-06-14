@@ -1,0 +1,39 @@
+﻿@page "/"
+@using System.IO;
+
+<h1>File Upload</h1>
+
+<div class="drag-drop-zone">
+    <InputFile OnChange="@HandleMultipleFilesSelected" multiple></InputFile>
+    @statusUpload
+    <br />
+</div>
+
+@if (imageList != null)
+{
+    foreach (var img in imageList)
+    {
+        @((MarkupString)img)
+    }
+}
+
+
+@code {
+    string statusUpload = "Arraste um arquivo por favor";
+    List<string> imageList = null;
+
+    private async Task HandleMultipleFilesSelected(InputFileChangeEventArgs e)
+    {
+        imageList = new List<string>();
+
+        foreach (var file in e.GetMultipleFiles())
+        {
+            var memoryStream = new MemoryStream();
+            await file.OpenReadStream().CopyToAsync(memoryStream);
+            var bytes = memoryStream.ToArray();
+            var image = Convert.ToBase64String(bytes);
+            imageList.Add("<img style='width: 300px; height: auto;' src='data:image;base64," + image + "' />");
+            statusUpload = "Upload feito com sucesso";
+        }
+    }
+}
